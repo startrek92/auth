@@ -17,7 +17,7 @@ public class JwtHelper {
     // 5hrs
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 
-    private String secret = "qwerty";
+    private String secret = "FyLxD5lcecArY5NKMBH9waCR25s6C4v6tBc4vuiBRHSTIM7hyYlQXu3ZCCVsVITm0sCrsHKsbKVXO6ueE1s98g";
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);

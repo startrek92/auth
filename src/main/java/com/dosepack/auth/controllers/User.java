@@ -1,5 +1,6 @@
 package com.dosepack.auth.controllers;
 
+import com.dosepack.auth.schema.CurrentUserInfo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,7 +12,8 @@ import java.security.Principal;
 public class User {
 
     @GetMapping("/current")
-    public String currentUser(Principal principal) {
-        return principal.getName();
+    public CurrentUserInfo currentUser(Principal principal) {
+        CurrentUserInfo currentUserInfo = new CurrentUserInfo("12", principal.getName(), principal.getName());
+        return currentUserInfo;
     }
 }
