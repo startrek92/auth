@@ -23,6 +23,15 @@ public class User {
     @Column(name = "age", nullable = false)
     private Integer age;
 
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
+
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
     public User(String name, Integer age) {
         this.name = name;
         this.age = age;
