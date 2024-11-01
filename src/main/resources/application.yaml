@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: auth
+  dataSource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: amit
+    url: jdbc:mysql://0.0.0.0:3306/auth
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: create-only
+    show-sql: true
+    open-in-view: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+server:
+  port: 8080
