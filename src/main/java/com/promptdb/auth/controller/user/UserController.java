@@ -1,6 +1,6 @@
 package com.promptdb.auth.controller.user;
 
-import com.promptdb.auth.models.User;
+import com.promptdb.auth.models.UserModel;
 import com.promptdb.auth.repository.UserRepository;
 import com.promptdb.auth.services.UserServices;
 import org.slf4j.Logger;
@@ -23,9 +23,9 @@ public class UserController {
     UserServices userServices;
 
     @PutMapping("")
-    public User createNewUser(@RequestBody User user) {
+    public UserModel createNewUser(@RequestBody UserModel user) {
         log.info("in user controller, creating new user: {}", user.toString());
-        User newUser = userServices.createNewUser(user.getName(), user.getAge());
+        UserModel newUser = userServices.createNewUser(user.getName(), user.getAge());
         return newUser;
     }
 }

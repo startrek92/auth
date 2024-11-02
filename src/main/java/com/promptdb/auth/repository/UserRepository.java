@@ -1,10 +1,10 @@
 package com.promptdb.auth.repository;
 
 
-import com.promptdb.auth.models.User;
+import com.promptdb.auth.models.UserModel;
 import org.springframework.data.repository.CrudRepository;
 
-public interface UserRepository extends CrudRepository <User, Long> {
+public interface UserRepository extends CrudRepository <UserModel, Long> {
 
-    User findById(long id);
+    UserModel findById(long id);
 }

@@ -1,6 +1,6 @@
 package com.promptdb.auth.services;
 
-import com.promptdb.auth.models.User;
+import com.promptdb.auth.models.UserModel;
 import com.promptdb.auth.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +19,9 @@ public class UserServices {
     @Autowired
     private BCrypt bCrypt;
 
-    public User createNewUser(String name, Integer age) {
+    public UserModel createNewUser(String name, Integer age) {
         log.info("creating new user");
-        User user = new User(name, age);
+        UserModel user = new UserModel(name, age);
         user = userRepository.save(user);
         return user;
     }
