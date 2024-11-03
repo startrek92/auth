@@ -1,9 +1,9 @@
-package com.promptdb.auth.controller.auth;
+package com.promptdb.auth.controllers.auth;
 
+import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.schemas.UserLoginRequest;
 import com.promptdb.auth.services.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +17,7 @@ public class Auth {
     UserServices userServices;
 
     @PostMapping("/login")
-    public String login(@RequestBody UserLoginRequest userLoginRequest) {
+    public String login(@RequestBody UserLoginRequest userLoginRequest) throws AuthException {
         String loginStatus = userServices
                 .loginUser(userLoginRequest.getUsername(),
                         userLoginRequest.getPassword());

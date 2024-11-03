@@ -1,4 +1,4 @@
-package com.promptdb.auth.controller.error;
+package com.promptdb.auth.controllers.error;
 
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,4 +1,4 @@
-package com.promptdb.auth.controller.user;
+package com.promptdb.auth.controllers.user;
 
 import com.promptdb.auth.models.UserModel;
 import com.promptdb.auth.repository.UserRepository;
