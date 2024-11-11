@@ -1,4 +1,4 @@
-package com.promptdb.auth.schemas;
+package com.promptdb.auth.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

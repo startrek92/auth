@@ -1,4 +1,4 @@
-package com.promptdb.auth.schemas;
+package com.promptdb.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -10,7 +10,7 @@ import lombok.*;
 @ToString
 public class ApiResponse<T> {
 
-    @JsonProperty(value = "status")
+    @JsonProperty(value = "status", defaultValue = "success")
     private String status;
 
     @JsonProperty(value = "data")

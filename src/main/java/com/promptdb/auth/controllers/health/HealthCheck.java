@@ -1,6 +1,6 @@
 package com.promptdb.auth.controllers.health;
 
-import com.promptdb.auth.schemas.HealthCheckResponse;
+import com.promptdb.auth.dto.HealthCheckResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

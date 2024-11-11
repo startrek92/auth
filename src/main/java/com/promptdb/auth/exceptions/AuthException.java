@@ -1,15 +1,13 @@
 package com.promptdb.auth.exceptions;
 
-import com.promptdb.auth.schemas.ApiFailureResponse;
-import com.promptdb.auth.schemas.ApiResponse;
+import com.promptdb.auth.dto.ApiFailureResponse;
+import com.promptdb.auth.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 
 
 public class AuthException extends BaseException{
 
     private final String errorType = AuthException.class.getSimpleName();
-    private final String errorCode;
-    private final String errorDescription;
 
     public AuthException(HttpStatus httpStatusCode, String errorCode, String errorDescription) {
         super(errorDescription);

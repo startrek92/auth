@@ -3,7 +3,7 @@ package com.promptdb.auth.exceptions;
 public enum ErrorCodes {
 
     // Authorization Related Errors, prefix: AUTH_
-    AUTH_INVALID_CREDENTIALS ("1001", "Invalid Username of Password"),
+    AUTH_INVALID_CREDENTIALS ("1001", "Invalid Username or Password"),
 
 
     // USER Errors, prefix: USER_

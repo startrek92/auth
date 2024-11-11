@@ -1,6 +1,6 @@
 package com.promptdb.auth.exceptions;
 
-import com.promptdb.auth.schemas.ApiResponse;
+import com.promptdb.auth.dto.ApiResponse;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
@@ -12,8 +12,8 @@ import org.springframework.http.HttpStatus;
 public abstract class BaseException extends Exception {
 
     protected final String status = "failure";
-    private String errorCode;
-    private String errorDescription;
+    protected String errorCode;
+    protected String errorDescription;
     protected HttpStatus httpStatusCode;
 
     public BaseException(String errorDescription) {
