@@ -8,6 +8,8 @@ public enum ErrorCodes {
 
     // USER Errors, prefix: USER_
     USER_ACCOUNT_LOCKED ("2001", "Account is Locked"),
+
+    INTERNAL_SERVER_ERROR("5001", "Internal Server Error")
     ;
 
     private final String errorCode;

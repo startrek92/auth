@@ -1,5 +1,6 @@
-package com.promptdb.auth.controllers.user;
+package com.promptdb.auth.controllers;
 
+import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.models.UserModel;
 import com.promptdb.auth.repository.UserRepository;
 import com.promptdb.auth.services.UserServices;
@@ -23,7 +24,7 @@ public class UserController {
     UserServices userServices;
 
     @PutMapping("")
-    public UserModel createNewUser(@RequestBody UserModel user) {
+    public UserModel createNewUser(@RequestBody UserModel user) throws AuthException {
         log.info("in user controller, creating new user: {}", user.toString());
         UserModel newUser = userServices.createNewUser(user.getName(), user.getAge());
         return newUser;

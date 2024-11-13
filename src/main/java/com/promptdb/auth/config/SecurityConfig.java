@@ -19,8 +19,9 @@ public class SecurityConfig {
 
         // allow login and health unauthenticated
         httpSecurity.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login", "/health").permitAll()
-                .requestMatchers("/error").anonymous()
+//                .requestMatchers("/auth/login", "/health").permitAll()
+//                .requestMatchers("/error").anonymous()
+                .requestMatchers("*").permitAll()
                 .anyRequest().authenticated());
 
         httpSecurity.formLogin(form -> form.disable());

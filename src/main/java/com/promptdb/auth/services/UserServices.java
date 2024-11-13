@@ -5,6 +5,7 @@ import com.promptdb.auth.exceptions.ErrorCodes;
 import com.promptdb.auth.models.UserModel;
 import com.promptdb.auth.repository.UserRepository;
 import com.promptdb.auth.utils.BCryptPasswordEncryptorImpl;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,17 @@ public class UserServices {
     @Autowired
     private BCryptPasswordEncryptorImpl bCrypt;
 
-    public UserModel createNewUser(String name, Integer age) {
+    @Transactional
+    public UserModel createNewUser(String name, Integer age) throws AuthException {
         log.info("creating new user");
         UserModel user = new UserModel(name, age);
         user = userRepository.save(user);
+        if(name.equals("error")) {
+            AuthException exception = new AuthException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    ErrorCodes.INTERNAL_SERVER_ERROR);
+            log.info("raising exception: {0}", exception);
+            throw exception;
+        }
         return user;
     }
 
@@ -34,8 +42,7 @@ public class UserServices {
         log.info("login user request: {}, {}", username, password);
         AuthException authException = new AuthException(
                 HttpStatus.UNAUTHORIZED,
-                ErrorCodes.AUTH_INVALID_CREDENTIALS.getErrorCode(),
-                ErrorCodes.AUTH_INVALID_CREDENTIALS.getErrorDescription());
+                ErrorCodes.AUTH_INVALID_CREDENTIALS);
 
         UserModel userModel = userRepository.findByUsername(username);
         if (userModel == null) {

@@ -9,10 +9,10 @@ public class AuthException extends BaseException{
 
     private final String errorType = AuthException.class.getSimpleName();
 
-    public AuthException(HttpStatus httpStatusCode, String errorCode, String errorDescription) {
-        super(errorDescription);
-        this.errorCode = errorCode;
-        this.errorDescription = errorDescription;
+    public AuthException(HttpStatus httpStatusCode, ErrorCodes errorCode) {
+        super(errorCode.getErrorDescription());
+        this.errorCode = errorCode.getErrorCode();
+        this.errorDescription = errorCode.getErrorDescription();
         this.httpStatusCode = httpStatusCode;
     }
 

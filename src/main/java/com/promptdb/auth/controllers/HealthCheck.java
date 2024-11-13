@@ -1,4 +1,4 @@
-package com.promptdb.auth.controllers.health;
+package com.promptdb.auth.controllers;
 
 import com.promptdb.auth.dto.HealthCheckResponse;
 import org.springframework.http.HttpStatus;

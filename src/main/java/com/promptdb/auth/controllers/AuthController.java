@@ -1,4 +1,4 @@
-package com.promptdb.auth.controllers.auth;
+package com.promptdb.auth.controllers;
 
 import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.dto.UserLoginRequest;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
-public class Auth {
+public class AuthController {
 
     @Autowired
     UserServices userServices;
