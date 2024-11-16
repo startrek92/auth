@@ -15,4 +15,9 @@ public class ApiResponse<T> {
 
     @JsonProperty(value = "data")
     private T data;
+
+    public ApiResponse(T data) {
+        this.data = data;
+        this.status  = "success";
+    }
 }
