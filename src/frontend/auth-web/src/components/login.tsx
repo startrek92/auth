@@ -1,10 +1,14 @@
-import { useState } from "react";
-import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import React, { useState } from "react";
+import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
 import { authLoginUser } from "../services/authService";
+import { authUtils } from "../utils/auth";
+import { HttpStatusCode } from "axios";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [submitEnable, setSubmitEnable] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function doLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -12,9 +16,25 @@ export default function LoginPage() {
     const credentials = {
       username: username,
       password: password,
+      state: authUtils.generateState(),
     };
 
-    await authLoginUser(credentials);
+    try {
+      const response = await authLoginUser(credentials);
+      if (response.status == HttpStatusCode.Unauthorized) {
+        const content = JSON.parse(response.data);
+        const msg = content.error_description || "Invalid Username or Password";
+        setErrorMessage(msg);
+      }
+    } catch (error: any) {
+      setErrorMessage(
+        error.response.data.data.error_description || "Something Went Wrong"
+      );
+    }
+  }
+
+  function updateButtonState(username: string, password: string) {
+    setSubmitEnable(username.length > 0 && password.length > 0);
   }
 
   return (
@@ -27,24 +47,39 @@ export default function LoginPage() {
         style={{ width: "100%", maxWidth: "500px" }}
       >
         <Row className="justify-content-center mb-4">
-          <Col sm={12}>
+          <Col sm={10}>
             <div className="text-center">
-              <h3 className="fw-bold text-secondary">
-                Welcome to DosePacker System
-              </h3>
+              <h5 className="fw-bold text-secondary">
+                DosePacker Identity Management
+              </h5>
             </div>
           </Col>
         </Row>
         <Row className="justify-content-center">
           <Col sm={10}>
             <Form onSubmit={doLogin}>
+              {errorMessage && (
+                <Alert
+                  variant="danger"
+                  dismissible
+                  show={errorMessage.length > 0}
+                  onClose={() => {
+                    setErrorMessage("");
+                  }}
+                >
+                  {errorMessage}
+                </Alert>
+              )}
               <Form.Group className="mb-4" controlId="formBasicEmail">
                 <Form.Label className="small fw-semibold">Username</Form.Label>
                 <Form.Control
                   type="text"
                   className="py-2"
                   placeholder="Enter your username"
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    updateButtonState(username, password);
+                  }}
                 />
               </Form.Group>
 
@@ -54,7 +89,10 @@ export default function LoginPage() {
                   type="password"
                   className="py-2"
                   placeholder="Enter your password"
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    updateButtonState(username, password);
+                  }}
                 />
               </Form.Group>
               <div className="d-flex justify-content-center mt-4">
@@ -63,6 +101,7 @@ export default function LoginPage() {
                   type="submit"
                   className="px-4 py-2 fw-semibold"
                   style={{ borderRadius: "25px" }}
+                  disabled={!submitEnable}
                 >
                   Login
                 </Button>

@@ -15,4 +15,18 @@ const restBackendInstance = axios.create({
     timeout: 1000
 })
 
+restBackendInstance.interceptors.response.use(
+  function(response) {
+    if(response.data) {
+      if(response.status == 200 || response.status == 201) {
+        return response;
+      }
+    }
+    return Promise.reject(response);
+  },
+  function(error) {
+    return Promise.reject(error);
+  }
+)
+
 export {restBackendInstance};
