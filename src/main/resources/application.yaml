@@ -1,4 +1,10 @@
 spring:
+  flyway:
+    enabled: true
+    url: jdbc:mysql://0.0.0.0:3306/auth
+    user: amit
+    password: password
+    locations: classpath:db/migration
   application:
     name: auth
   dataSource:
@@ -8,7 +14,7 @@ spring:
     password: password
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     show-sql: true
     open-in-view: true
     database-platform: org.hibernate.dialect.MySQLDialect

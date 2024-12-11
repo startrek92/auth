@@ -2,6 +2,7 @@ package com.promptdb.auth.controllers;
 
 import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.dto.UserLoginRequest;
+import com.promptdb.auth.services.JWTService;
 import com.promptdb.auth.services.UserServices;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class AuthController {
 
     @Autowired
     UserServices userServices;
+
+    @Autowired
+    JWTService jwtService;
 
     @PostMapping("/login")
     public String login(@Valid @RequestBody UserLoginRequest userLoginRequest) throws AuthException {

@@ -3,6 +3,7 @@ package com.promptdb.auth.controllers;
 import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.models.UserModel;
 import com.promptdb.auth.repository.UserRepository;
+import com.promptdb.auth.services.JWTService;
 import com.promptdb.auth.services.UserServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,9 @@ public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    JWTService jwtService;
 
     @Autowired
     UserServices userServices;

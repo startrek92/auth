@@ -28,7 +28,7 @@ export default function LoginPage() {
       }
     } catch (error: any) {
       setErrorMessage(
-        error.response.data.data.error_description || "Something Went Wrong"
+        error.response?.data?.data?.error_description || "Something Went Wrong"
       );
     }
   }
