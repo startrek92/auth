@@ -4,6 +4,7 @@ public enum ErrorCodes {
 
     // Authorization Related Errors, prefix: AUTH_
     AUTH_INVALID_CREDENTIALS ("1001", "Invalid Username or Password"),
+    INVALID_JWT_TOKEN("1002", "Token is invalid or expired"),
 
 
     // USER Errors, prefix: USER_
