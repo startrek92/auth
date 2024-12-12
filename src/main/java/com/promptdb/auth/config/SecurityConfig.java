@@ -1,6 +1,7 @@
 package com.promptdb.auth.config;
 
 import com.mysql.cj.protocol.AuthenticationProvider;
+import com.promptdb.auth.filter.JwtFilter;
 import com.promptdb.auth.services.AuthUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -23,7 +25,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig {
 
     @Autowired
-    AuthUserDetailsService authUserDetailsService;
+    private AuthUserDetailsService authUserDetailsService;
+
+    @Autowired
+    private JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -36,12 +41,19 @@ public class SecurityConfig {
                 .requestMatchers("/error").anonymous()
                 .anyRequest().authenticated());
 
+        // disable form login for the user
         httpSecurity.formLogin(form -> form.disable());
 
         // creates a stateless session, means no sessionID will be set and client
         // has to pass credentials for every request
         httpSecurity.sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // disable basic HTTP filter
+        httpSecurity.httpBasic(basic -> basic.disable());
+
         return httpSecurity.build();
     }
 
