@@ -2,6 +2,7 @@ package com.promptdb.auth.services;
 
 import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.exceptions.ErrorCodes;
+import com.promptdb.auth.models.UserModel;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -16,6 +17,10 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Map;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 
 @Service
 @Getter
@@ -29,7 +34,9 @@ public class JWTService {
 
     public String getUsername(String token) throws AuthException {
         try {
-            return getClaimsFromToken(token).getSubject();
+            String username =  getClaimsFromToken(token).getSubject();
+            logger.info("token valid for username: {}", username);
+            return username;
         } catch (ExpiredJwtException | UnsupportedJwtException
                  | MalformedJwtException | SignatureException
                  | IllegalArgumentException e) {
@@ -77,36 +84,62 @@ public class JWTService {
         }
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Map<String, Object> extraClaims) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
 
-        return Jwts.builder()
+        JwtBuilder jwtBuilder = Jwts.builder()
                 .subject(username)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .id(java.util.UUID.randomUUID().toString())
                 .issuer("PromptDB")
-                .claim("type", "Bearer")
-                // Signing
+                .claim("type", "Bearer");
+
+        if (extraClaims != null && !extraClaims.isEmpty()) {
+            extraClaims.forEach(jwtBuilder::claim);
+        }
+
+        return jwtBuilder
                 .signWith(getKey())
                 .compact();
     }
 
+    public String generateToken(String username) {
+        return generateToken(username, null);
+    }
+
     public String generateToken(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+        return generateToken(userDetails.getUsername(), null);
+    }
 
-        return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .id(java.util.UUID.randomUUID().toString())
-                .issuer("PromptDB")
-                .claim("type", "Bearer")
-                // Signing
-                .signWith(getKey())
-                .compact();
+    public String generateToken(Authentication authentication, Map<String, Object> extraClaims) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return generateToken(userDetails.getUsername(), extraClaims);
+    }
+
+    public String generateSessionId(UserModel user) throws AuthException {
+        try {
+            String rawSessionData = user.getUsername() + ":" + user.getId() + ":" + System.currentTimeMillis();
+            
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(rawSessionData.getBytes(StandardCharsets.UTF_8));
+            
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("Error generating session ID: {}", e.getMessage());
+            throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    ErrorCodes.INTERNAL_SERVER_ERROR);
+        }
     }
 }

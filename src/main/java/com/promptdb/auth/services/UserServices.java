@@ -1,5 +1,6 @@
 package com.promptdb.auth.services;
 
+import com.promptdb.auth.dto.UserLoginResponseDTO;
 import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.exceptions.ErrorCodes;
 import com.promptdb.auth.models.UserModel;
@@ -14,6 +15,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserServices {
@@ -42,7 +46,7 @@ public class UserServices {
         return user;
     }
 
-    public String loginUser(String username, String password) throws AuthException {
+    public UserLoginResponseDTO loginUser(String username, String password) throws AuthException {
         log.info("login user request: {}, {}", username, password);
         AuthException authException = new AuthException(
                 HttpStatus.UNAUTHORIZED,
@@ -53,10 +57,42 @@ public class UserServices {
             log.info("username: {} not found", username);
             throw authException;
         }
+
+        validateUserAccount(userModel);
+
         if (bCrypt.checkHash(password, userModel.getPassword())) {
-            return jwtService.generateToken(username);
+            Map<String, Object> extraClaims = userModel.getLoginJwtClaims();
+            String token = jwtService.generateToken(username, extraClaims);
+            UserLoginResponseDTO userLoginResponseDTO = new UserLoginResponseDTO();
+            userLoginResponseDTO.setUsername(userModel.getUsername());
+            userLoginResponseDTO.setName(userModel.getName());
+            userLoginResponseDTO.setEmail(userModel.getEmail());
+            userLoginResponseDTO.setToken(token);
+            userLoginResponseDTO.setSessionId(jwtService.generateSessionId(userModel));
+            return userLoginResponseDTO;
         } else {
             throw authException;
         }
     }
+
+    private void validateUserAccount(UserModel user) throws AuthException {
+        log.info("validating user: {}", user.getUsername());
+        validateUserLockStatus(user);
+        validateUserActiveStatus(user);
+    }
+
+    private void validateUserLockStatus(UserModel user) throws AuthException {
+        if (user.getIsLocked()) {
+            log.info("user: {} is locked", user.getUsername());
+            throw new AuthException(HttpStatus.UNAUTHORIZED, ErrorCodes.USER_ACCOUNT_LOCKED);
+        }
+    }
+
+    private void validateUserActiveStatus(UserModel user) throws AuthException {
+        if (!user.getIsActive()) {
+            log.info("user: {} not active", user.getUsername());
+            throw new AuthException(HttpStatus.UNAUTHORIZED, ErrorCodes.USER_NOT_ACTIVE);
+        }
+    }
+
 }

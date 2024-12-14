@@ -8,7 +8,10 @@ public enum ErrorCodes {
 
 
     // USER Errors, prefix: USER_
-    USER_ACCOUNT_LOCKED ("2001", "Account is Locked"),
+    USER_ACCOUNT_LOCKED ("2001",
+            "Account is Locked, Reset Password to Unlock"),
+
+    USER_NOT_ACTIVE("2002", "Account not active, contact Admin"),
 
     INTERNAL_SERVER_ERROR("5001", "Internal Server Error")
     ;

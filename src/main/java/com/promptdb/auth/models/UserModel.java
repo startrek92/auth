@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.HashMap;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -53,5 +55,16 @@ public class UserModel extends BaseModel {
     public UserModel(String name, Integer age) {
         this.name = name;
         this.age = age;
+    }
+
+    public HashMap<String, Object> getLoginJwtClaims() {
+        HashMap<String, Object> claims = new HashMap<>();
+        CompanyModel companyModel1 = this.getCompanyModel();
+        claims.put("company_id", companyModel1.getId());
+        claims.put("company_name", companyModel1.getName());
+        claims.put("age", this.getAge());
+        claims.put("modified_on", this.getModifiedOn());
+        claims.put("created_on", this.getCreatedOn());
+        return claims;
     }
 }

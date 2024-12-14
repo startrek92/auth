@@ -12,7 +12,7 @@ export default function LoginPage() {
 
   async function doLogin(e: React.FormEvent) {
     e.preventDefault();
-
+    setErrorMessage("");
     const credentials = {
       username: username,
       password: password,
