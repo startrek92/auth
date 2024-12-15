@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
 import { authLoginUser } from "../services/authService";
 import { authUtils } from "../utils/auth";
 import { HttpStatusCode } from "axios";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../App";
+import { saveToLocalStorage } from "../utils/localStorage";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitEnable, setSubmitEnable] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const{setIsLoggedIn} = useContext(AuthContext);
 
   async function doLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +26,14 @@ export default function LoginPage() {
 
     try {
       const response = await authLoginUser(credentials);
-      if (response.status == HttpStatusCode.Unauthorized) {
+      if (response.status == HttpStatusCode.Ok) {
+        setIsLoggedIn(true);
+        const userInfo = response.data.data;
+        saveToLocalStorage("isLoggedIn", true);
+        saveToLocalStorage("userInfo", userInfo)
+       navigate('/home', {state: {userInfo}});
+      }
+      else {
         const content = JSON.parse(response.data);
         const msg = content.error_description || "Invalid Username or Password";
         setErrorMessage(msg);
@@ -50,7 +62,7 @@ export default function LoginPage() {
           <Col sm={10}>
             <div className="text-center">
               <h5 className="fw-bold text-secondary">
-                DosePacker Identity Management
+                Identity Management
               </h5>
             </div>
           </Col>
