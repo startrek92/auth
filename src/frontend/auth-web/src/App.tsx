@@ -10,10 +10,8 @@ import SignUpPage from "./components/signup";
 import HomePage from "./pages/Home";
 import "bootstrap/dist/css/bootstrap.min.css";
 import RouteLayout from "./layout/RouteLayout";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { AuthContextType } from "./types/auth";
-import { UserInfoType } from "./types/user";
-import { getFromLocalStorage } from "./utils/localStorage";
 
 export const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,

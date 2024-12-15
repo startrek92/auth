@@ -1,0 +1,25 @@
+.navbar-shadow {
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.3)
+}
+
+.tob-header-shadow {
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.3)
+}
+
+.search-box-top .form-control:focus{
+    box-shadow: none;
+  }
+
+.auth-login-button {
+    background-color: rgba(33, 37, 41, 1) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.auth-login-button:hover {
+    background-color: rgba(33, 37, 41, 0.9) !important;
+}
+
+.auth-login-button:disabled {
+    background-color: rgba(33, 37, 41, 0.5) !important;
+}

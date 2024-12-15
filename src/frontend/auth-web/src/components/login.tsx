@@ -6,6 +6,7 @@ import { HttpStatusCode } from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../App";
 import { saveToLocalStorage } from "../utils/localStorage";
+import "../styles/global.css"
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export default function LoginPage() {
         <Row className="justify-content-center mb-4">
           <Col sm={10}>
             <div className="text-center">
-              <h5 className="fw-bold text-secondary">
+              <h5 className="fw-bold text-dark">
                 Identity Management
               </h5>
             </div>
@@ -109,9 +110,8 @@ export default function LoginPage() {
               </Form.Group>
               <div className="d-flex justify-content-center mt-4">
                 <Button
-                  variant="dark"
                   type="submit"
-                  className="px-4 py-2 fw-semibold"
+                  className="px-4 py-2 fw-semibold auth-login-button"
                   style={{ borderRadius: "25px" }}
                   disabled={!submitEnable}
                 >
