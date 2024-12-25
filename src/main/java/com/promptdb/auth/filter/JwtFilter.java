@@ -3,6 +3,7 @@ package com.promptdb.auth.filter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.promptdb.auth.exceptions.AuthException;
+import com.promptdb.auth.services.AuthUserDetailsService;
 import com.promptdb.auth.services.JWTService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -31,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private JWTService jwtService;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private AuthUserDetailsService userDetailsService;
 
     private void generateResponse(HttpServletResponse response, AuthException exceptionObject) throws IOException {
         response.setStatus(exceptionObject.getHttpStatusCode().value());
@@ -64,7 +65,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     if(jwtService.validateToken(token, userDetails)) {
                         UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 } catch (AuthException e) {

@@ -23,3 +23,17 @@
 .auth-login-button:disabled {
     background-color: rgba(33, 37, 41, 0.5) !important;
 }
+
+.container {
+  margin-top: 80px; /* Adjust this value based on your header height */
+}
+
+.user-info {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.bi-person-fill {
+  color: #6c757d;
+}

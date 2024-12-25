@@ -4,6 +4,7 @@ import {
   createRoutesFromElements,
   RouterProvider,
   Navigate,
+  Outlet
 } from "react-router-dom";
 import LoginPage from "./components/login";
 import SignUpPage from "./components/signup";
@@ -12,6 +13,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import RouteLayout from "./layout/RouteLayout";
 import { createContext, useContext, useState } from "react";
 import { AuthContextType } from "./types/auth";
+import UserProfile from "./pages/Profile";
+import NotFoundPage from "./pages/NotFound";
 
 export const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
@@ -26,10 +29,14 @@ function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<RouteLayout />}>
-        <Route index element={<HomePage />} />
+        <Route element={<PrivateRoute />}>
+          <Route index element={<HomePage />} />
+          <Route path="home" element={<HomePage />} />
+          <Route path="profile" element={<UserProfile />}/>
+          <Route path="*" element= {<NotFoundPage />} />
+        </Route>
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignUpPage />} />
-        <Route path="home" element={<PrivateRoute />} />
       </Route>
     )
   );
@@ -43,8 +50,12 @@ function App() {
 
 function PrivateRoute() {
   const { isLoggedIn } = useContext(AuthContext);
+  
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
 
-  return isLoggedIn ? <HomePage /> : <Navigate to="/login"></Navigate>;
+  return <Outlet />;
 }
 
 export default App;

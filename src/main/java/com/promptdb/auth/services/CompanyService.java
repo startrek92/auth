@@ -2,12 +2,10 @@ package com.promptdb.auth.services;
 
 import com.promptdb.auth.dto.CreateCompanyRequest;
 import com.promptdb.auth.exceptions.AuthException;
-import com.promptdb.auth.exceptions.ErrorCodes;
 import com.promptdb.auth.models.CompanyModel;
-import com.promptdb.auth.repository.CompanyRepository;
+import com.promptdb.auth.repository.repoInterfaces.CompanyRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service

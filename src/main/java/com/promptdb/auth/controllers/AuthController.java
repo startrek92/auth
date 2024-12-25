@@ -40,7 +40,8 @@ public class AuthController {
                 .from("jwt", loginResponseDTO.getToken())
                 .httpOnly(true)
                 .maxAge(24*60*60)
-                .sameSite("Strict")
+                .domain("0.0.0.0")
+                .secure(false)
                 .build();
 
         headers.add(HttpHeaders.SET_COOKIE, responseCookie.toString());

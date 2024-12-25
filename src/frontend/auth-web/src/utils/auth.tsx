@@ -1,7 +1,9 @@
 
+// import crypto from 'crypto';
+
 const authUtils = {
     generateState: () => {
-        const value = crypto.randomUUID();
+        const value = "qwerty";
         return value;
     }
 }

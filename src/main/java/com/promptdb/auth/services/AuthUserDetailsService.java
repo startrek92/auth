@@ -2,8 +2,7 @@ package com.promptdb.auth.services;
 
 import com.promptdb.auth.models.UserModel;
 import com.promptdb.auth.models.UserPrincipalModel;
-import com.promptdb.auth.repository.UserRepository;
-import jdk.jfr.Unsigned;
+import com.promptdb.auth.repository.repoInterfaces.UserRepository;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

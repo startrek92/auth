@@ -3,9 +3,11 @@ package com.promptdb.auth.config;
 import com.mysql.cj.protocol.AuthenticationProvider;
 import com.promptdb.auth.filter.JwtFilter;
 import com.promptdb.auth.services.AuthUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,6 +40,8 @@ public class SecurityConfig {
         // allow login and health unauthenticated
         httpSecurity.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/login", "/health").permitAll()
+                // allow all options endpoint, else CORS validation will fail and will result with 403
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/error").anonymous()
                 .anyRequest().authenticated());
 
@@ -53,6 +57,13 @@ public class SecurityConfig {
 
         // disable basic HTTP filter
         httpSecurity.httpBasic(basic -> basic.disable());
+
+        // Add exception handling for access denied
+        httpSecurity.exceptionHandling(exception ->
+                exception.accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+                })
+        );
 
         return httpSecurity.build();
     }
@@ -70,7 +81,6 @@ public class SecurityConfig {
         return provider;
     }
 
-
     @Bean
     public WebMvcConfigurer corsConfigure() {
         return new WebMvcConfigurer() {
@@ -79,7 +89,7 @@ public class SecurityConfig {
                 corsRegistry.addMapping("/**")
                         .allowCredentials(true)
                         .allowedHeaders("*")
-                        .allowedMethods("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedOriginPatterns("*");
             }
         };

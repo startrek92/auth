@@ -1,4 +1,4 @@
-package com.promptdb.auth.repository;
+package com.promptdb.auth.repository.repoInterfaces;
 
 import com.promptdb.auth.models.CompanyModel;
 import org.springframework.data.repository.CrudRepository;

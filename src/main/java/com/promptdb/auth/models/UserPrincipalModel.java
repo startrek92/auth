@@ -31,4 +31,8 @@ public class UserPrincipalModel implements UserDetails {
         return user.getUsername();
     }
 
+    public UserModel getUser(){
+        return this.user;
+    }
+
 }

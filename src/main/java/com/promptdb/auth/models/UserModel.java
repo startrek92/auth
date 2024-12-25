@@ -14,7 +14,7 @@ import java.util.HashMap;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Entity(name = "user")
 @Table(name = "user")
 public class UserModel extends BaseModel {
 
@@ -33,7 +33,7 @@ public class UserModel extends BaseModel {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "fk_company_id",
             nullable = true,

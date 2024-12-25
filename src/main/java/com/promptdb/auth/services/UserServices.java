@@ -1,22 +1,24 @@
 package com.promptdb.auth.services;
 
+import com.promptdb.auth.dto.User.CurrentUserInfoResponseDTO;
+import com.promptdb.auth.dto.User.UserInfoResponseDTO;
 import com.promptdb.auth.dto.UserLoginResponseDTO;
 import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.exceptions.ErrorCodes;
 import com.promptdb.auth.models.UserModel;
-import com.promptdb.auth.repository.UserRepository;
+import com.promptdb.auth.models.UserPrincipalModel;
+import com.promptdb.auth.repository.repoInterfaces.UserRepository;
 import com.promptdb.auth.utils.BCryptPasswordEncryptorImpl;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -32,6 +34,12 @@ public class UserServices {
 
     @Autowired JWTService jwtService;
 
+    private CurrentUserInfoResponseDTO currentUserSecurityContext() {
+        UserPrincipalModel userPrincipalModel = (UserPrincipalModel) SecurityContextHolder
+                .getContext().getAuthentication()
+                .getPrincipal();
+        return new CurrentUserInfoResponseDTO(userPrincipalModel.getUser());
+    }
     @Transactional
     public UserModel createNewUser(String name, Integer age) throws AuthException {
         log.info("creating new user");
@@ -44,6 +52,12 @@ public class UserServices {
             throw exception;
         }
         return user;
+    }
+
+    public CurrentUserInfoResponseDTO currentUser() throws AuthException {
+        UserPrincipalModel userPrincipalModel = (UserPrincipalModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return new CurrentUserInfoResponseDTO(userPrincipalModel.getUser());
     }
 
     public UserLoginResponseDTO loginUser(String username, String password) throws AuthException {
@@ -95,4 +109,16 @@ public class UserServices {
         }
     }
 
+    public List<UserInfoResponseDTO> getAllUsers()  {
+
+        List<UserModel> userModelList = userRepository
+                .getByCompanyId(currentUserSecurityContext().getCompanyId());
+
+        List<UserInfoResponseDTO> userInfoResponseDTOS = new ArrayList<>();
+
+        for(UserModel userModel: userModelList) {
+            userInfoResponseDTOS.add(new UserInfoResponseDTO(userModel));
+        }
+        return userInfoResponseDTOS;
+    }
 }

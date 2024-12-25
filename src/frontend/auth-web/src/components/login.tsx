@@ -52,8 +52,7 @@ export default function LoginPage() {
 
   return (
     <Container
-      className="d-flex align-items-center justify-content-center"
-      style={{ minHeight: "100vh" }}
+      className="d-flex align-items-center justify-content-center min-vh-100"
     >
       <div
         className="bg-white p-4 rounded shadow-lg"
