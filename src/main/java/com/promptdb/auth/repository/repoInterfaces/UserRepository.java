@@ -18,4 +18,10 @@ public interface UserRepository extends CrudRepository <UserModel, Long> {
 
     @Query(value = "SELECT u FROM user u WHERE u.companyModel.id = :company_id")
     List<UserModel> getByCompanyId( @Param("company_id") Integer companyId);
+
+    @Query(
+            value = "SELECT * FROM user WHERE fk_company_id = :company_id AND (username LIKE %:search_filter% OR email LIKE %:search_filter%)",
+            nativeQuery = true)
+    List<UserModel> getByCompanyId(@Param("company_id") Integer companyId,
+                                   @Param("search_filter") String searchFilter);
 }

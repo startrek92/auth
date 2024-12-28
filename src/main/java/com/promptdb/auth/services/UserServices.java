@@ -109,10 +109,17 @@ public class UserServices {
         }
     }
 
-    public List<UserInfoResponseDTO> getAllUsers()  {
+    public List<UserInfoResponseDTO> getAllUsers(String searchQuery)  {
 
-        List<UserModel> userModelList = userRepository
-                .getByCompanyId(currentUserSecurityContext().getCompanyId());
+        CurrentUserInfoResponseDTO currentUserInfoResponseDTO = currentUserSecurityContext();
+
+        List<UserModel> userModelList = new ArrayList<UserModel>();
+        if (searchQuery != null) {
+            userModelList = userRepository.getByCompanyId(currentUserInfoResponseDTO.getCompanyId(),
+                    searchQuery);
+        } else {
+            userModelList = userRepository.getByCompanyId(currentUserInfoResponseDTO.getCompanyId());
+        }
 
         List<UserInfoResponseDTO> userInfoResponseDTOS = new ArrayList<>();
 
