@@ -22,7 +22,7 @@ export const AuthTopHeader: React.FC<HeaderProps> = ({
       <Row className="align-items-center bg-dark text-white p-3 mt-0 tob-header-shadow">
         <Col className="d-flex align-items-center">
           <h5 className="mb-0">
-            <a href="./" style={{ textDecoration: "none", color: "inherit" }}>
+            <a href="/" style={{ textDecoration: "none", color: "inherit" }}>
               User Management
             </a>
           </h5>

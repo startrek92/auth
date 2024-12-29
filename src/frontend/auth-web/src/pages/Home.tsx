@@ -26,9 +26,9 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query: string) => {
-    console.log('setting search query: ', query);
+    console.log("setting search query: ", query);
     setSearchQuery(query);
-  }
+  };
 
   useEffect(() => {
     const getUserList = async () => {
@@ -41,39 +41,56 @@ export default function HomePage() {
 
   return (
     <>
-      <AuthTopHeader showSearch={true} onSearch={handleSearch}/>
+      <AuthTopHeader showSearch={true} onSearch={handleSearch} />
       <div className="p-4" style={{ marginTop: "60px" }}>
-        {isLoading && (userInfoList == null) ? (
+        {isLoading && userInfoList == null ? (
           <div>Loading...</div>
         ) : (
           <Row className="g-4">
-            {userInfoList != null && userInfoList.map((user, index) => (
-              <Col key={index} sm={12} md={6} lg={4} xl={3}>
-                <Card className="border-0 shadow-sm">
-                  <Card.Body className="d-flex align-items-center p-3">
-                    <div 
-                      className="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
-                      style={{ width: "48px", height: "48px", overflow: "hidden" }}
-                    >
-                      {user.profile_image ? (
-                        <img 
-                          src={user.profile_image} 
-                          alt={user.name}
-                          className="w-100 h-100 object-fit-cover"
-                        />
-                      ) : (
-                        <i className="bi bi-person text-secondary fs-4"></i>
-                      )}
-                    </div>
-                    <div>
-                      <h6 className="mb-1 fw-semibold">{user.name}</h6>
-                      <p className="mb-0 text-muted small">{user.company_name}</p>
-                      <small className="text-muted">{user.email}</small>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
+            {userInfoList != null &&
+              userInfoList.map((user, index) => (
+                <Col key={index} sm={12} md={6} lg={4} xl={3}>
+                  <a 
+                    href={`./user/${user.id}`}
+                    style={{ 
+                      textDecoration: 'none', 
+                      display: 'block',
+                      color: 'inherit',
+                      cursor: 'default'
+                    }}
+                  >
+                    <Card className="border-0 shadow-sm" id={`user-id-${user.id}`}>
+                      <Card.Body className="d-flex align-items-center p-3">
+                        <div
+                          className="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+                          style={{
+                            width: "48px",
+                            height: "48px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {user.profile_image ? (
+                            <img
+                              src={user.profile_image}
+                              alt={user.name}
+                              className="w-100 h-100 object-fit-cover"
+                            />
+                          ) : (
+                            <i className="bi bi-person text-secondary fs-4"></i>
+                          )}
+                        </div>
+                        <div>
+                          <h6 className="mb-1 fw-semibold">{user.name}</h6>
+                          <p className="mb-0 text-muted small">
+                            {user.company_name}
+                          </p>
+                          <small className="text-muted">{user.email}</small>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </a>
+                </Col>
+              ))}
           </Row>
         )}
       </div>

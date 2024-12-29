@@ -2,6 +2,7 @@ package com.promptdb.auth.services;
 
 import com.promptdb.auth.dto.User.CurrentUserInfoResponseDTO;
 import com.promptdb.auth.dto.User.UserInfoResponseDTO;
+import com.promptdb.auth.dto.User.UserUpdateRequestDTO;
 import com.promptdb.auth.dto.UserLoginResponseDTO;
 import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.exceptions.ErrorCodes;
@@ -127,5 +128,50 @@ public class UserServices {
             userInfoResponseDTOS.add(new UserInfoResponseDTO(userModel));
         }
         return userInfoResponseDTOS;
+    }
+
+    public List<UserInfoResponseDTO> getUserInfoById(Integer id) {
+
+        CurrentUserInfoResponseDTO currentUserInfoResponseDTO = currentUserSecurityContext();
+        List<UserInfoResponseDTO> userInfoResponseDTOList = new ArrayList<UserInfoResponseDTO>();
+        List<UserModel> userModelList = userRepository.getById(currentUserInfoResponseDTO.getCompanyId(), id);
+
+        for(UserModel user: userModelList) {
+            userInfoResponseDTOList.add(new UserInfoResponseDTO(user));
+        }
+
+        return userInfoResponseDTOList;
+    }
+
+    private void validateUsername(String username, Integer currentUserId) throws AuthException {
+        if (username != null && !username.isEmpty()) {
+            UserModel existingUser = userRepository.findByUsername(username);
+            if (existingUser != null && !existingUser.getId().equals(currentUserId)) {
+                throw new AuthException(HttpStatus.BAD_REQUEST, ErrorCodes.USERNAME_ALREADY_EXISTS);
+            }
+        }
+    }
+
+    private void validateEmail(String email, Integer currentUserId) throws AuthException {
+        if (email != null && !email.isEmpty()) {
+            UserModel existingUser = userRepository.findByEmail(email);
+            if (existingUser != null && !existingUser.getId().equals(currentUserId)) {
+                throw new AuthException(HttpStatus.BAD_REQUEST, ErrorCodes.EMAIL_ALREADY_EXISTS);
+            }
+        }
+    }
+
+    @Transactional
+    public UserInfoResponseDTO updateCurrentUser(UserUpdateRequestDTO userUpdateRequestDTO) throws AuthException {
+
+        CurrentUserInfoResponseDTO currentUserInfoResponseDTO = currentUserSecurityContext();
+        UserModel userModel = currentUserInfoResponseDTO.getUserModel();
+        validateUsername(userUpdateRequestDTO.getUsername(), userModel.getId());
+        validateEmail(userUpdateRequestDTO.getEmail(), userModel.getId());
+
+        userUpdateRequestDTO.updateUserModel(userModel);
+
+        userModel = userRepository.save(userModel);
+        return new UserInfoResponseDTO(userModel);
     }
 }

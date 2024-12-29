@@ -12,6 +12,9 @@ public enum ErrorCodes {
             "Account is Locked, Reset Password to Unlock"),
 
     USER_NOT_ACTIVE("2002", "Account not active, contact Admin"),
+    USERNAME_ALREADY_EXISTS("2003", "Username not available"),
+    EMAIL_ALREADY_EXISTS("2004", "Email not available"),
+
 
     INTERNAL_SERVER_ERROR("5001", "Internal Server Error")
     ;

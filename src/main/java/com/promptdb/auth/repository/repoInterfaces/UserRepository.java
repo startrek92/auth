@@ -16,6 +16,8 @@ public interface UserRepository extends CrudRepository <UserModel, Long> {
 
     UserModel findByUsername(String username);
 
+    UserModel findByEmail(String email);
+
     @Query(value = "SELECT u FROM user u WHERE u.companyModel.id = :company_id")
     List<UserModel> getByCompanyId( @Param("company_id") Integer companyId);
 
@@ -24,4 +26,10 @@ public interface UserRepository extends CrudRepository <UserModel, Long> {
             nativeQuery = true)
     List<UserModel> getByCompanyId(@Param("company_id") Integer companyId,
                                    @Param("search_filter") String searchFilter);
+
+    @Query(
+            value = "SELECT * from user where fk_company_id = :company_id and id = :user_id",
+            nativeQuery = true)
+    List<UserModel> getById( @Param("company_id") Integer companyId,  @Param("user_id") Integer userId);
+
 }

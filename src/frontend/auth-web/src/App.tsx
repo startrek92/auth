@@ -15,6 +15,7 @@ import { createContext, useContext, useState } from "react";
 import { AuthContextType } from "./types/auth";
 import UserProfile from "./pages/Profile";
 import NotFoundPage from "./pages/NotFound";
+import UserInfoPage from "./pages/UserInfo";
 
 export const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
@@ -33,6 +34,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="home" element={<HomePage />} />
           <Route path="profile" element={<UserProfile />}/>
+          <Route path="user/:id" element={<UserInfoPage/>} />
           <Route path="*" element= {<NotFoundPage />} />
         </Route>
         <Route path="login" element={<LoginPage />} />

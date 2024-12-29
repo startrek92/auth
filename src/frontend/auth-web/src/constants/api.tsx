@@ -3,8 +3,9 @@ const authEndpointsConstant = {
 }
 
 const userEndpointsConstant = {
-    CURRENT_USER_INFO: {
-        GET: "/user"
+    USER_INFO: {
+        GET: "/user", // get userInfo
+        POST: "/user" // update userInfo
     }
 }
 

@@ -2,6 +2,8 @@ package com.promptdb.auth.controllers;
 
 import com.promptdb.auth.dto.ApiResponse;
 import com.promptdb.auth.dto.User.CurrentUserInfoResponseDTO;
+import com.promptdb.auth.dto.User.UserInfoResponseDTO;
+import com.promptdb.auth.dto.User.UserUpdateRequestDTO;
 import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.models.UserModel;
 import com.promptdb.auth.repository.repoInterfaces.UserRepository;
@@ -14,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -40,5 +44,21 @@ public class UserController {
     public ResponseEntity<ApiResponse> getCurrentUserInfo() throws AuthException {
         CurrentUserInfoResponseDTO userModel = userServices.currentUser();
         return new ResponseEntity<>(new ApiResponse(userModel), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public  ResponseEntity<ApiResponse> getUserInfoById( @PathVariable Integer id) throws AuthException {
+        List<UserInfoResponseDTO> userInfoResponseDTOList = userServices.getUserInfoById(id);
+
+        return new ResponseEntity<>(new ApiResponse(userInfoResponseDTOList), HttpStatus.OK);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<ApiResponse> updateCurrentUser(
+            @RequestBody UserUpdateRequestDTO userUpdateRequestDTO) throws AuthException {
+
+       UserInfoResponseDTO userInfoResponseDTO = userServices.updateCurrentUser(userUpdateRequestDTO);
+       return new ResponseEntity<>(new ApiResponse(userInfoResponseDTO), HttpStatus.OK);
+
     }
 }

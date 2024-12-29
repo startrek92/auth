@@ -1,5 +1,6 @@
 package com.promptdb.auth.dto.User;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.promptdb.auth.models.CompanyModel;
 import com.promptdb.auth.models.UserModel;
@@ -13,6 +14,9 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 public class CurrentUserInfoResponseDTO {
+
+    @JsonProperty
+    private Integer id;
 
     @JsonProperty
     private String name;
@@ -38,11 +42,14 @@ public class CurrentUserInfoResponseDTO {
     @JsonProperty(value = "created_on")
     private Date createdOn;
 
+    @JsonIgnore
+    UserModel userModel;
+
 
     public CurrentUserInfoResponseDTO(UserModel user) {
 
         CompanyModel companyModel = user.getCompanyModel();
-
+        this.id = user.getId();
         this.name = user.getName();
         this.age = user.getAge();
         this.username = user.getUsername();
@@ -51,5 +58,6 @@ public class CurrentUserInfoResponseDTO {
         this.companyName = companyModel.getName();
         this.createdOn = user.getCreatedOn();
         this.isActive = user.getIsActive();
+        this.userModel = user;
     }
 }
