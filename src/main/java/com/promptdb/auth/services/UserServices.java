@@ -78,13 +78,7 @@ public class UserServices {
         if (bCrypt.checkHash(password, userModel.getPassword())) {
             Map<String, Object> extraClaims = userModel.getLoginJwtClaims();
             String token = jwtService.generateToken(username, extraClaims);
-            UserLoginResponseDTO userLoginResponseDTO = new UserLoginResponseDTO();
-            userLoginResponseDTO.setUsername(userModel.getUsername());
-            userLoginResponseDTO.setName(userModel.getName());
-            userLoginResponseDTO.setEmail(userModel.getEmail());
-            userLoginResponseDTO.setToken(token);
-            userLoginResponseDTO.setSessionId(jwtService.generateSessionId(userModel));
-            return userLoginResponseDTO;
+            return new UserLoginResponseDTO(userModel, token, jwtService.generateSessionId(userModel));
         } else {
             throw authException;
         }

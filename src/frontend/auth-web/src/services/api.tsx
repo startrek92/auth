@@ -4,6 +4,10 @@ import axios, { HttpStatusCode } from "axios";
 import { getFromLocalStorage } from "../utils/localStorage";
 
 const noAuthUrls = ["/auth/login"];
+const unauthorizedResponseCodes = [
+  HttpStatusCode.Forbidden, 
+  HttpStatusCode.Unauthorized
+];
 
 const getBaseURL = () => {
   const isDomain = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
@@ -45,14 +49,15 @@ restBackendInstance.interceptors.request.use(
 restBackendInstance.interceptors.response.use(
   function (response) {
     console.log("checking status")
-    if(response.status == HttpStatusCode.Unauthorized) {
-      console.log("unauthorized 401")
+    if(unauthorizedResponseCodes.includes(response.status)) {
+      console.log("unauthorized 401 or 403");
       window.location.href = "/login";
     }
     return response;
   },
   function (error) {
-    if(error?.response?.status == HttpStatusCode.Unauthorized) {
+    if(unauthorizedResponseCodes.includes(error?.response?.status)) {
+      console.log("unauthorized 401 or 403");
       window.location.href = "/login";
     }
     return Promise.reject(error);

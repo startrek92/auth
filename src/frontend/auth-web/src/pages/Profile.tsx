@@ -27,6 +27,7 @@ export default function UserProfile() {
   });
 
   const [updateInfoErrorMessage, setUpdateInfoErrorMessage] = useState("");
+  const [showUsernameWarning, setShowUsernameWarning] = useState(false);
 
   function handleErrorMessageClose() {
     setUpdateInfoErrorMessage("");
@@ -50,12 +51,26 @@ export default function UserProfile() {
     fetchUserInfo();
   }, []);
 
+  const handleUsernameChange = (newUsername: string) => {
+    setEditedInfo({
+      ...editedInfo,
+      username: newUsername
+    });
+    setShowUsernameWarning(newUsername !== loggedInUserInfo.username);
+  };
+
   const handleSave = async () => {
     try {
       const response = await userService.updateLoggedInUserInfo(editedInfo);
       if (response.status == HttpStatusCode.Ok) {
         setLoggedInUserInfo({ ...loggedInUserInfo, ...editedInfo });
         setIsEditing(false);
+        
+        if (editedInfo.username !== loggedInUserInfo.username) {
+          localStorage.clear();
+          setIsLoggedIn(false);
+          navigate("/login");
+        }
       }
     } catch (error: any) {
       const response = error?.response;
@@ -160,16 +175,18 @@ export default function UserProfile() {
                     </Col>
                     <Col xs={12} sm={8}>
                       {isEditing ? (
-                        <Form.Control
-                          type="text"
-                          value={editedInfo.username}
-                          onChange={(e) =>
-                            setEditedInfo({
-                              ...editedInfo,
-                              username: e.target.value,
-                            })
-                          }
-                        />
+                        <>
+                          <Form.Control
+                            type="text"
+                            value={editedInfo.username}
+                            onChange={(e) => handleUsernameChange(e.target.value)}
+                          />
+                          {showUsernameWarning && (
+                            <div className="text-danger mt-1" style={{ fontSize: '0.875rem' }}>
+                              Changing username will require you to login again
+                            </div>
+                          )}
+                        </>
                       ) : (
                         loggedInUserInfo.username
                       )}

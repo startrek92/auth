@@ -3,6 +3,8 @@ import "../styles/global.css";
 import { AuthTopHeader } from "../components/topHeader";
 import { useEffect, useState } from "react";
 import { companyService } from "../services/endpointService";
+import { getFromLocalStorage } from "../utils/localStorage";
+import { useNavigate } from "react-router-dom";
 /**
  * Router in App tsx checks is user is logged in or not.
  * if will handle redirection of user
@@ -24,11 +26,18 @@ export default function HomePage() {
   const [userInfoList, setUserInfoList] = useState<User[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const currentUserInfoBackend: any = getFromLocalStorage("userInfo");
+  const navigate = useNavigate();
 
   const handleSearch = (query: string) => {
     console.log("setting search query: ", query);
     setSearchQuery(query);
   };
+
+  if(currentUserInfoBackend == null) {
+    navigate("./login");
+    return <></>
+  }
 
   useEffect(() => {
     const getUserList = async () => {
@@ -38,6 +47,14 @@ export default function HomePage() {
     };
     getUserList();
   }, [searchQuery]);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
   return (
     <>
@@ -60,31 +77,47 @@ export default function HomePage() {
                     }}
                   >
                     <Card className="border-0 shadow-sm" id={`user-id-${user.id}`}>
-                      <Card.Body className="d-flex align-items-center p-3">
-                        <div
-                          className="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
-                          style={{
-                            width: "48px",
-                            height: "48px",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {user.profile_image ? (
-                            <img
-                              src={user.profile_image}
-                              alt={user.name}
-                              className="w-100 h-100 object-fit-cover"
-                            />
-                          ) : (
-                            <i className="bi bi-person text-secondary fs-4"></i>
-                          )}
+                      <Card.Body className="d-flex justify-content-between p-3">
+                        <div className="d-flex align-items-center">
+                          <div
+                            className="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {user.profile_image ? (
+                              <img
+                                src={user.profile_image}
+                                alt={user.name}
+                                className="w-100 h-100 object-fit-cover"
+                              />
+                            ) : (
+                              <i className="bi bi-person text-secondary fs-4"></i>
+                            )}
+                          </div>
+                          <div>
+                            <h6 className="mb-1 fw-semibold">
+                              {user.name}
+                              {user.id === currentUserInfoBackend.id && (
+                                <span className="ms-2 badge bg-secondary">You</span>
+                              )}
+                            </h6>
+                            <p className="mb-0 text-muted small">{user.company_name}</p>
+                            <small className="text-muted">{user.email}</small>
+                          </div>
                         </div>
-                        <div>
-                          <h6 className="mb-1 fw-semibold">{user.name}</h6>
-                          <p className="mb-0 text-muted small">
-                            {user.company_name}
-                          </p>
-                          <small className="text-muted">{user.email}</small>
+
+                        <div className="text-end">
+                          <div className="mb-2">
+                            <span className={`badge ${user.is_active ? 'bg-dark' : 'bg-danger'}`}>
+                              {user.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                          <small className="text-muted d-block">
+                            Joined {formatDate(user.created_on)}
+                          </small>
                         </div>
                       </Card.Body>
                     </Card>

@@ -52,11 +52,17 @@ export default function LoginPage() {
 
   return (
     <Container
-      className="d-flex align-items-center justify-content-center min-vh-100"
+      className="d-flex align-items-center justify-content-center vh-100"
+      fluid
     >
       <div
         className="bg-white p-4 rounded shadow-lg"
-        style={{ width: "100%", maxWidth: "500px" }}
+        style={{ 
+          width: "100%", 
+          maxWidth: "500px",
+          maxHeight: "90vh",
+          overflowY: "auto"
+        }}
       >
         <Row className="justify-content-center mb-4">
           <Col sm={10}>
