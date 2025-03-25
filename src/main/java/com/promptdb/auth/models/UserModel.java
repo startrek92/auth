@@ -7,8 +7,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,7 +21,7 @@ import java.util.HashMap;
 @NoArgsConstructor
 @Entity(name = "user")
 @Table(name = "user")
-public class UserModel extends BaseModel {
+public class UserModel extends BaseModel implements UserDetails {
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -66,5 +71,30 @@ public class UserModel extends BaseModel {
         claims.put("modified_on", this.getModifiedOn());
         claims.put("created_on", this.getCreatedOn());
         return claims;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("USER"));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !isLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isActive;
     }
 }
