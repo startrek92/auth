@@ -21,12 +21,14 @@ similar to setting __abstract__ = True in SQLAlchemy
 public class BaseModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "created_on", nullable = false)
+    // Hibernate won't add these cols in create statement
+    // value will be handled by db
+    @Column(name = "created_on", nullable = false, insertable = false, updatable = false)
     private Date createdOn;
 
-    @Column(name = "modified_on", nullable = false)
+    @Column(name = "modified_on", nullable = false, insertable = false, updatable = false)
     private Date modifiedOn;
 }

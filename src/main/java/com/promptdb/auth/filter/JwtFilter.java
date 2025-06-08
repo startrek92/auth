@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jdk.jfr.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +34,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private AuthUserDetailsService userDetailsService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     private void generateResponse(HttpServletResponse response, AuthException exceptionObject) throws IOException {
         response.setStatus(exceptionObject.getHttpStatusCode().value());
