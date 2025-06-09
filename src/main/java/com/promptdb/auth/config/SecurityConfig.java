@@ -1,7 +1,8 @@
 package com.promptdb.auth.config;
 
 import com.promptdb.auth.authenticatonProviders.AuthDaoAuthenticationProvider;
-import com.promptdb.auth.filter.JWTAuthentication;
+import com.promptdb.auth.filter.JWTAuthenticationFilter;
+import com.promptdb.auth.filter.JWTAuthorizationFilter;
 import com.promptdb.auth.services.BearerTokenService;
 import com.promptdb.auth.utils.JWTUtils;
 import com.promptdb.auth.services.AuthUserDetailsService;
@@ -52,7 +53,8 @@ public class SecurityConfig {
                                                    AuthenticationManager authenticationManager,
                                                    JWTUtils jwtUtils, BearerTokenService bearerTokenService) throws Exception {
 
-        JWTAuthentication jwtAuthentication = new JWTAuthentication(authenticationManager, jwtUtils, bearerTokenService);
+        JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(authenticationManager, jwtUtils, bearerTokenService);
+        JWTAuthorizationFilter jwtAuthorizationFilter = new JWTAuthorizationFilter(jwtUtils, bearerTokenService);
 
         http
                 .csrf(csrf -> csrf.disable())
@@ -65,7 +67,8 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilter(jwtAuthentication)
+                .addFilter(jwtAuthenticationFilter)
+                .addFilterBefore(jwtAuthorizationFilter, JWTAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler((req, res, ex) ->
                                 res.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied")

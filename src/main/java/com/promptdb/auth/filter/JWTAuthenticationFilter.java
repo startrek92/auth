@@ -21,16 +21,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 
-public class JWTAuthentication extends UsernamePasswordAuthenticationFilter {
+public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtils jwtUtils;
     private final BearerTokenService bearerTokenService;
 
-    public JWTAuthentication(AuthenticationManager authenticationManager, JWTUtils jwtUtils, BearerTokenService bearerTokenService) {
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JWTUtils jwtUtils, BearerTokenService bearerTokenService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
-        setFilterProcessesUrl("/auth/login"); // ensure this matches your login endpoint
+        setFilterProcessesUrl("/auth/login"); // this tells spring only invoke this filter when /auth/login is received
         this.bearerTokenService = bearerTokenService;
     }
 

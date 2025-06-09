@@ -78,4 +78,8 @@ public class JWTUtils {
                 .getPayload();
     }
 
+    public Claims getAllClaims(String token) {
+        return parseClaims(token);
+    }
+
 }
