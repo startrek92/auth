@@ -36,31 +36,45 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        log.info("started authorization for {} ", request.getServletPath());
+
+        String path = request.getServletPath();
+        log.info("Started JWT authorization for path: {}", path);
+
         AuthException authException = null;
         Claims claims = null;
         BearerTokenModel bearerTokenModel = null;
         String authHeader = request.getHeader("Authorization");
 
-        if(authHeader == null || !authHeader.startsWith("Bearer")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer")) {
+            log.warn("Missing or invalid Authorization header");
             authException = new AuthException(HttpStatus.BAD_REQUEST, ErrorCodes.INVALID_AUTH_HEADER);
-        }
-
-        if (authException == null) {
+        } else {
             String authToken = authHeader.substring(7);
+            log.debug("Received Bearer token: {}", authToken);
+
             try {
                 claims = jwtUtils.getAllClaims(authToken);
+                log.debug("Parsed JWT claims: subject={}, id={}, issuedAt={}, expiration={}",
+                        claims.getSubject(), claims.getId(), claims.getIssuedAt(), claims.getExpiration());
+
                 bearerTokenModel = bearerTokenService.validateToken(claims.getId());
+
                 if (!bearerTokenModel.getUser().getUsername().equals(claims.getSubject())) {
-                    authException = new AuthException(HttpStatus.BAD_REQUEST, ErrorCodes.INVALID_JWT_TOKEN);
+                    log.warn("JWT subject does not match user in token service. Subject: {}, Expected: {}",
+                            claims.getSubject(), bearerTokenModel.getUser().getUsername());
+                    authException = new AuthException(HttpStatus.UNAUTHORIZED, ErrorCodes.INVALID_JWT_TOKEN);
+                } else {
+                    log.info("JWT token validated successfully for user: {}", claims.getSubject());
                 }
 
             } catch (Exception e) {
-                authException = new AuthException(HttpStatus.BAD_REQUEST, ErrorCodes.INVALID_JWT_TOKEN);
+                log.error("Error validating JWT token", e);
+                authException = new AuthException(HttpStatus.UNAUTHORIZED, ErrorCodes.INVALID_JWT_TOKEN);
             }
         }
 
         if (authException != null) {
+            log.info("JWT authorization failed, sending error response: {}", authException.getErrorCode());
             ApiResponse<?> apiResponse = authException.generateResponse();
             response.setStatus(authException.getHttpStatusCode().value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -68,16 +82,23 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                bearerTokenModel.getUser(), null, bearerTokenModel.getUser().getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        // Set authentication context
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(
+                        bearerTokenModel.getUser(),
+                        null,
+                        bearerTokenModel.getUser().getAuthorities()
+                );
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        log.info("Security context set for user: {}", bearerTokenModel.getUser().getUsername());
+
         filterChain.doFilter(request, response);
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        log.info("skipped filter for jwt auth filter, received login endpoint");
-        return request.getServletPath().equals("/auth/login");
+        boolean skip = request.getServletPath().equals("/auth/login");
+        if (skip) log.info("Skipping JWT filter for login endpoint");
+        return skip;
     }
 }

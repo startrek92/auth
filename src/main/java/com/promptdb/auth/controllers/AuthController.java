@@ -27,25 +27,25 @@ public class AuthController {
     @Autowired
     JWTService jwtService;
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(@Valid @RequestBody UserLoginRequest userLoginRequest) throws AuthException {
-        UserLoginResponseDTO loginResponseDTO = userServices
-                .loginUser(userLoginRequest.getUsername(),
-                        userLoginRequest.getPassword());
-
-        ApiResponse apiResponse = new ApiResponse(loginResponseDTO);
-
-        HttpHeaders headers = new HttpHeaders();
-        ResponseCookie responseCookie = ResponseCookie
-                .from("jwt", loginResponseDTO.getToken())
-                .httpOnly(true)
-                .maxAge(24*60*60)
-                .domain("0.0.0.0")
-                .secure(false)
-                .build();
-
-        headers.add(HttpHeaders.SET_COOKIE, responseCookie.toString());
-
-        return new ResponseEntity<>(apiResponse, headers, HttpStatus.OK);
-    }
+//    @PostMapping("/login")
+//    public ResponseEntity<ApiResponse> login(@Valid @RequestBody UserLoginRequest userLoginRequest) throws AuthException {
+//        UserLoginResponseDTO loginResponseDTO = userServices
+//                .loginUser(userLoginRequest.getUsername(),
+//                        userLoginRequest.getPassword());
+//
+//        ApiResponse apiResponse = new ApiResponse(loginResponseDTO);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        ResponseCookie responseCookie = ResponseCookie
+//                .from("jwt", loginResponseDTO.getToken())
+//                .httpOnly(true)
+//                .maxAge(24*60*60)
+//                .domain("0.0.0.0")
+//                .secure(false)
+//                .build();
+//
+//        headers.add(HttpHeaders.SET_COOKIE, responseCookie.toString());
+//
+//        return new ResponseEntity<>(apiResponse, headers, HttpStatus.OK);
+//    }
 }

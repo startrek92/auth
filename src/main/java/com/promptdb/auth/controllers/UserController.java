@@ -42,6 +42,7 @@ public class UserController {
 
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse> getCurrentUserInfo() throws AuthException {
+        log.info("getting user info");
         CurrentUserInfoResponseDTO userModel = userServices.currentUser();
         return new ResponseEntity<>(new ApiResponse(userModel), HttpStatus.OK);
     }
