@@ -25,7 +25,14 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ApiResponse> handleExceptions(BaseException exc, WebRequest req) {
-        return new ResponseEntity<ApiResponse>(exc.generateResponse(), exc.getHttpStatusCode());
+        log.warn("Handled BaseException - status: {}, code: {}, path: {}, message: {}",
+                exc.getHttpStatusCode(),
+                exc.getErrorCode(),
+                req.getDescription(false),
+                exc.getMessage()
+        );
+        log.debug("BaseException stack trace: ", exc);
+        return new ResponseEntity<>(exc.generateResponse(), exc.getHttpStatusCode());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,7 +43,27 @@ public class ControllerExceptionHandler {
             String message = error.getDefaultMessage();
             errors.put(fieldName, message);
         });
+
+        log.warn("Validation failed for request: {} | Total errors: {} | Details: {}",
+                exc.getParameter().getExecutable().toGenericString(),
+                errors.size(),
+                errors
+        );
+
         ApiResponse apiResponse = new ApiResponse<>("failure", errors);
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ApiResponse> handleGenericException(Exception exc, WebRequest req) {
+        log.error("Unhandled exception occurred at path: {} | Exception: {}",
+                req.getDescription(false),
+                exc.getMessage(),
+                exc
+        );
+
+        ApiResponse apiResponse = new ApiResponse<>("failure", "Internal server error occurred");
+        return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
