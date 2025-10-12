@@ -1,6 +1,7 @@
 package com.promptdb.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.promptdb.auth.config.SecurityConstants;
 import com.promptdb.auth.dto.ApiResponse;
 import com.promptdb.auth.exceptions.AuthException;
 import com.promptdb.auth.exceptions.ErrorCodes;
@@ -37,7 +38,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        String path = getRequestPath(request);
         log.info("Started JWT authorization for path: {}", path);
 
         AuthException authException = null;
@@ -97,8 +98,27 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        boolean skip = request.getServletPath().equals("/auth/login");
-        if (skip) log.info("Skipping JWT filter for login endpoint");
+        String path = getRequestPath(request);
+        boolean skip = SecurityConstants.isPathExcluded(path);
+        if (skip) log.info("Skipping JWT filter for excluded endpoint: {}", path);
         return skip;
+    }
+    
+    private String getRequestPath(HttpServletRequest request) {
+        String servletPath = request.getServletPath();
+        String pathInfo = request.getPathInfo();
+        String requestURI = request.getRequestURI();
+        
+        // If servlet path is empty, use request URI
+        if (servletPath == null || servletPath.isEmpty()) {
+            return requestURI;
+        }
+        
+        // If pathInfo exists, combine servlet path with path info
+        if (pathInfo != null) {
+            return servletPath + pathInfo;
+        }
+        
+        return servletPath;
     }
 }
