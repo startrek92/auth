@@ -36,10 +36,10 @@ public class UserServices {
     @Autowired JWTService jwtService;
 
     private CurrentUserInfoResponseDTO currentUserSecurityContext() {
-        UserPrincipalModel userPrincipalModel = (UserPrincipalModel) SecurityContextHolder
+        UserModel userModel = (UserModel) SecurityContextHolder
                 .getContext().getAuthentication()
                 .getPrincipal();
-        return new CurrentUserInfoResponseDTO(userPrincipalModel.getUser());
+        return new CurrentUserInfoResponseDTO(userModel);
     }
     @Transactional
     public UserModel createNewUser(String name, Integer age) throws AuthException {
@@ -56,9 +56,9 @@ public class UserServices {
     }
 
     public CurrentUserInfoResponseDTO currentUser() throws AuthException {
-        UserPrincipalModel userPrincipalModel = (UserPrincipalModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserModel userModel = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return new CurrentUserInfoResponseDTO(userPrincipalModel.getUser());
+        return new CurrentUserInfoResponseDTO(userModel);
     }
 
     public UserLoginResponseDTO loginUser(String username, String password) throws AuthException {

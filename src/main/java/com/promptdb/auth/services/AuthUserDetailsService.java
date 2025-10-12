@@ -28,6 +28,6 @@ public class AuthUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("invalid username");
         }
-        return new UserPrincipalModel(user);
+        return user;
     }
 }

@@ -1,5 +1,6 @@
 package com.promptdb.auth.models;
 
+import com.promptdb.auth.dto.JwtDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,5 +34,13 @@ public class BearerTokenModel extends BaseModel{
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_bearer_token_user"))
     private UserModel user;
+
+    public BearerTokenModel(JwtDto jwtDto) {
+        this.accessToken = jwtDto.getAccessTokenJti();
+        this.refreshToken = jwtDto.getRefreshToken();
+        this.accessTokenExpiresOn = jwtDto.getAccessTokenExpiresAt();
+        this.refreshTokenExpiresOn = jwtDto.getRefreshTokenExpiresAt();
+        this.user = jwtDto.getUserModel();
+    }
 
 }
