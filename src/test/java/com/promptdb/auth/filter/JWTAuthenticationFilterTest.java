@@ -1,98 +1,85 @@
 package com.promptdb.auth.filter;
 
-import com.promptdb.auth.dto.JwtDto;
-import com.promptdb.auth.models.CompanyModel;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.promptdb.auth.dto.UserLoginRequest;
+import com.promptdb.auth.models.BearerTokenModel;
 import com.promptdb.auth.models.UserModel;
-import com.promptdb.auth.services.BearerTokenService;
-import com.promptdb.auth.utils.JWTUtils;
-import jakarta.servlet.FilterChain;
+import com.promptdb.auth.repository.repoInterfaces.BearerTokenRepository;
+import com.promptdb.auth.repository.repoInterfaces.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
 
-import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
-class JWTAuthenticationFilterTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+class JWTAuthenticationIntegrationTest {
 
-    @Mock
-    AuthenticationManager authenticationManager;
-    @Mock
-    JWTUtils jwtUtils;
-    @Mock
-    BearerTokenService bearerTokenService;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Test
-    void attemptAuthentication_readsCredentialsAndDelegatesToAuthManager() {
-        JWTAuthenticationFilter filter = new JWTAuthenticationFilter(authenticationManager, jwtUtils, bearerTokenService);
+    @Autowired
+    private UserRepository userRepository;
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setContentType("application/json");
-        request.setContent("{\"username\":\"alice\",\"password\":\"secret\",\"state\":\"x\"}".getBytes());
-        MockHttpServletResponse response = new MockHttpServletResponse();
+    @Autowired
+    private BearerTokenRepository bearerTokenRepository;
 
-        when(authenticationManager.authenticate(any())).thenReturn(
-                new UsernamePasswordAuthenticationToken("alice", null, List.of(new SimpleGrantedAuthority("USER")))
-        );
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-        Authentication auth = filter.attemptAuthentication(request, response);
-        assertNotNull(auth);
+    @Autowired
+    private ObjectMapper objectMapper;
 
-        ArgumentCaptor<UsernamePasswordAuthenticationToken> captor = ArgumentCaptor.forClass(UsernamePasswordAuthenticationToken.class);
-        verify(authenticationManager).authenticate(captor.capture());
-        UsernamePasswordAuthenticationToken passed = captor.getValue();
-        assertEquals("alice", passed.getPrincipal());
-        assertEquals("secret", passed.getCredentials());
+    @BeforeEach
+    void setup() {
+
+        // Create a real user
+//        UserModel user = new UserModel();
+//        user.setUsername("amit");
+//        user.setPassword(passwordEncoder.encode("password123"));
+//        user.setIsActive(true);
+//        userRepository.save(user);
     }
 
     @Test
-    void successfulAuthentication_writesCookieAndBody() throws IOException {
-        JWTAuthenticationFilter filter = new JWTAuthenticationFilter(authenticationManager, jwtUtils, bearerTokenService);
+    void testLoginAndTokenSavedInDB() throws Exception {
+        // given
+        UserLoginRequest loginRequest = new UserLoginRequest();
+        loginRequest.setUsername("alice");
+        loginRequest.setPassword("123");
 
-        UserModel user = new UserModel();
-        user.setId(1);
-        user.setUsername("alice");
-        user.setName("Alice");
-        user.setEmail("alice@example.com");
-        user.setIsActive(true);
-        user.setIsLocked(false);
-        CompanyModel company = new CompanyModel();
-        company.setId(10);
-        company.setName("ACME");
-        user.setCompanyModel(company);
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(cookie().exists("auth-session-token"))
+                .andExpect(jsonPath("$.data.username").value("alice"))
+                .andExpect(jsonPath("$.data.token").exists());
 
-        Authentication auth = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("USER")));
+    }
 
-        JwtDto jwtDto = JwtDto.builder()
-                .userModel(user)
-                .accessToken("access-token-123")
-                .build();
-        when(jwtUtils.generateTokensForUser(user)).thenReturn(jwtDto);
+    @Test
+    void testInvalidPassword_ShouldReturnUnauthorized() throws Exception {
+        // given
+        UserLoginRequest loginRequest = new UserLoginRequest();
+        loginRequest.setUsername("alice");
+        loginRequest.setPassword("wrong");
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        filter.successfulAuthentication(request, response, mock(FilterChain.class), auth);
-
-        assertEquals(200, response.getStatus());
-        assertEquals("application/json", response.getContentType());
-        // Verify cookie and body
-        assertTrue(response.getCookies().length > 0);
-        String body = response.getContentAsString();
-        assertTrue(body.contains("access-token-123"));
-        assertTrue(body.contains("alice"));
+        // when
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.data").value("Authentication failed"));
     }
 }
