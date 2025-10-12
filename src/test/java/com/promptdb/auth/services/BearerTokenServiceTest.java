@@ -22,17 +22,17 @@ class BearerTokenServiceTest {
     BearerTokenService service;
 
     @Test
-    void validateToken_returnsModel_whenFound() throws AuthException {
+    void getToken_returnsModel_whenFound() throws AuthException {
         BearerTokenModel model = new BearerTokenModel();
         when(repo.getValidBearerToken("jti-1")).thenReturn(model);
 
-        BearerTokenModel result = service.validateToken("jti-1");
+        BearerTokenModel result = service.getToken("jti-1");
         assertSame(model, result);
     }
 
     @Test
-    void validateToken_throws_whenNotFound() {
+    void getToken_throws_whenNotFound() {
         when(repo.getValidBearerToken("bad")).thenReturn(null);
-        assertThrows(AuthException.class, () -> service.validateToken("bad"));
+        assertThrows(AuthException.class, () -> service.getToken("bad"));
     }
 }

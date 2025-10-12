@@ -29,7 +29,7 @@ public class BearerTokenService {
     }
 
     @Transactional
-    public BearerTokenModel validateToken(String accessToken) throws AuthException {
+    public BearerTokenModel getToken(String accessToken) throws AuthException {
         BearerTokenModel bearerTokenModel = bearerTokenRepository.getValidBearerToken(accessToken);
         if (bearerTokenModel == null) {
             throw new AuthException(HttpStatus.UNAUTHORIZED, ErrorCodes.INVALID_JWT_TOKEN);

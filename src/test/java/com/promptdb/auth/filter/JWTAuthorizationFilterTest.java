@@ -83,7 +83,7 @@ class JWTAuthorizationFilterTest {
 
         BearerTokenModel model = new BearerTokenModel();
         model.setUser(user);
-        when(bearerTokenService.validateToken("jti-123")).thenReturn(model);
+        when(bearerTokenService.getToken("jti-123")).thenReturn(model);
 
         filter.doFilter(request, response, chain);
 

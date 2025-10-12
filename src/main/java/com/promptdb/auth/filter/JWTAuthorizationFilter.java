@@ -58,7 +58,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                 log.debug("Parsed JWT claims: subject={}, id={}, issuedAt={}, expiration={}",
                         claims.getSubject(), claims.getId(), claims.getIssuedAt(), claims.getExpiration());
 
-                bearerTokenModel = bearerTokenService.validateToken(claims.getId());
+                bearerTokenModel = bearerTokenService.getToken(claims.getId());
 
                 if (!bearerTokenModel.getUser().getUsername().equals(claims.getSubject())) {
                     log.warn("JWT subject does not match user in token service. Subject: {}, Expected: {}",
