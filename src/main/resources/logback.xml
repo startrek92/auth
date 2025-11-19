@@ -1,0 +1,89 @@
+<configuration>
+
+    <!-- ===============================================================
+         LOG SEVERITY LEVELS (Lowest → Highest)
+         TRACE : Most detailed logs, deep debugging.
+         DEBUG : Development-level logs.
+         INFO  : Application operational logs.
+         WARN  : Unexpected situations, not fatal.
+         ERROR : Failures requiring attention.
+         =============================================================== -->
+
+
+    <!-- ===============================================================
+         Console Appender
+         =============================================================== -->
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- ===============================================================
+         File Appender (Static File: logs/auth.log)
+         =============================================================== -->
+    <appender name="fileAppender" class="ch.qos.logback.core.FileAppender">
+        <file>logs/auth.log</file>
+        <append>true</append>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- ===============================================================
+         NEW Rolling File Appender
+         Rolls based on SIZE ONLY.
+         Max file size: 5MB
+         Max history: 5 rotated files
+         Output files: logs/auth-1.log, logs/auth-2.log, ...
+         =============================================================== -->
+    <appender name="rollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- Base active log file -->
+        <file>logs/auth-rolling.log</file>
+
+        <!-- Rolling policy: Fixed window (size-based rotation) -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <!-- File name pattern for rolled files -->
+            <fileNamePattern>logs/auth-rolling.%i.log</fileNamePattern>
+
+            <!-- Keep up to 5 files: auth-rolling.1.log → auth-rolling.5.log -->
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+
+        <!-- Trigger rotation based on file size only -->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <!-- Max file size = 5MB -->
+            <maxFileSize>5MB</maxFileSize>
+        </triggeringPolicy>
+
+        <!-- Formatting (same as other appenders) -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+
+    </appender>
+
+
+    <!-- ===============================================================
+         Root Logger
+         =============================================================== -->
+    <root level="INFO">
+        <appender-ref ref="fileAppender"/>
+    </root>
+
+
+    <!-- ===============================================================
+         Project Logger
+         =============================================================== -->
+    <logger name="com.promptdb.auth" level="DEBUG" additivity="true">
+        <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="rollingFileAppender"/>
+        <!-- If you want project logs to also use rolling logs, add: -->
+        <!-- <appender-ref ref="rollingFileAppender"/> -->
+    </logger>
+
+</configuration>
