@@ -1,6 +1,7 @@
 package com.promptdb.auth.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -62,6 +63,7 @@ public class UserModel extends BaseModel implements UserDetails {
         this.age = age;
     }
 
+    @JsonIgnore
     public HashMap<String, Object> getLoginJwtClaims() {
         HashMap<String, Object> claims = new HashMap<>();
         CompanyModel companyModel1 = this.getCompanyModel();
@@ -73,26 +75,31 @@ public class UserModel extends BaseModel implements UserDetails {
         return claims;
     }
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("USER"));
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return !isLocked;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return isActive;

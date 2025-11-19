@@ -9,6 +9,7 @@ import com.promptdb.auth.services.CompanyService;
 import com.promptdb.auth.services.UserServices;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/company")
+@Slf4j
 public class CompanyController {
 
-    private static final Logger log = LoggerFactory.getLogger(CompanyController.class);
     @Autowired
     private CompanyService companyService;
 

@@ -49,7 +49,7 @@ public class UserServices {
         if(name.equals("error")) {
             AuthException exception = new AuthException(HttpStatus.INTERNAL_SERVER_ERROR,
                     ErrorCodes.INTERNAL_SERVER_ERROR);
-            log.info("raising exception: {0}", exception);
+            log.error("raising exception: {0}", exception);
             throw exception;
         }
         return user;
