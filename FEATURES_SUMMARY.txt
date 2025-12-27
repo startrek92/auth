@@ -1,0 +1,99 @@
+Project: auth
+Path: /Users/itachi/Documents/Project/auth
+
+Summary generated: 2025-12-27
+
+1) High-level:
+- Backend: Spring Boot application with JWT-based auth, custom auth provider, user/company services, repositories, DTOs, exception handling and filters.
+- Frontend: React + TypeScript + Vite app (src/frontend/auth-web) with pages, login/signup components and services calling backend APIs.
+
+2) Implemented - Backend (found files & behaviors)
+- Security config: Stateless security, custom AuthenticationProvider, CORS (src/main/java/com/promptdb/auth/config/SecurityConfig.java)
+- JWT filters: Authentication filter for /auth/login and Authorization filter for Bearer tokens (src/main/java/.../filter/JWTAuthenticationFilter.java, JWTAuthorizationFilter.java)
+- Auth controllers: AuthController (login endpoint commented out currently), UserController (create user, current user, get by id, update), CompanyController (create company, list users) (src/main/java/com/promptdb/auth/controllers)
+- Services:
+  - UserServices: user creation, current user resolution, login flow (legacy), user updates and queries (src/main/java/com/promptdb/auth/services/UserServices.java)
+  - JWTService: token generation, validation helper and session id generation (src/main/java/com/promptdb/auth/services/JWTService.java)
+  - BearerTokenService: persist/retrieve bearer tokens (src/main/java/com/promptdb/auth/services/BearerTokenService.java)
+  - AuthUserDetailsService: loads user for Spring Security (src/main/java/com/promptdb/auth/services/AuthUserDetailsService.java)
+- Repositories: JPA CrudRepository interfaces for User, Company, BearerToken (src/main/java/com/promptdb/auth/repository/repoInterfaces)
+- Models & DTOs: many model classes (UserModel, CompanyModel, BearerTokenModel, UserPrincipalModel, etc) and DTOs (ApiResponse, UserLoginRequest/Response, CreateCompanyRequest, health DTOs)
+- Exception handling: custom exceptions (BaseException, AuthException, ErrorCodes) and a ControllerAdvice-based handler (ControllerExceptionHandler.java)
+- Utilities: BCrypt helper, JWT utils; Flyway configured in application.yaml
+- Tests: there are test results (surefire-reports) indicating unit & integration tests exist and were executed previously
+
+3) Implemented - Frontend (found files)
+- Project: React + TypeScript + Vite (src/frontend/auth-web)
+- Components: login, signup, topHeader, closeAlert, searchBar (src/frontend/auth-web/src/components)
+- Pages: Home, Profile, UserInfo, NotFound (src/frontend/auth-web/src/pages)
+- Services: api.tsx, authService.tsx, userService.tsx, endpointService.tsx
+- Utilities: localStorage helpers, auth utilities
+- Routing and layout: App.tsx, RouteLayout.tsx, main.tsx
+- Styling: CSS files exist; package.json lists MUI, react-router-dom, axios, etc
+
+4) Features pending / incomplete (observed)
+Backend:
+- AuthController.login is commented out. Current login behavior is implemented in JWTAuthenticationFilter (which triggers on /auth/login), but there is no regular controller-based login endpoint in use. There may be inconsistency between controller vs filter approach.
+- Token refresh / logout API: I did not find refresh-token or logout endpoints. Only token generation and persisting a bearer token are present.
+- Token expiry handling & refresh strategy: JWTService issues 24h tokens; no refresh flow implemented.
+- Role/permission management: RoleModel exists, but I didn't find RBAC checks in controllers.
+- Validation & DTO usage: Some controllers accept model entity objects directly (e.g., UserController#createNewUser takes UserModel directly) — better to use DTOs for public API.
+- Some repository queries look suspicious (see Problems below) and may not work with JPA mappings as written.
+- Missing controller tests / integration tests for many endpoints (there are tests but coverage unknown)
+
+Frontend:
+- No explicit login flow wired to backend endpoints in code I inspected (check authService) — may be present, but ensure endpoints match server (cookie vs header token expectations).
+- No token refresh UI or robust handling of 401/403 flows in api service noticed.
+- No E2E tests, limited form validation.
+
+5) Potential issues / questionable approaches (actionable)
+- JWT parsing & signing API misuse (likely bug): In JWTService.getClaimsFromToken() the code uses:
+    Jwts.parser().verifyWith(getKey()).build().parseSignedClaims(token).getPayload();
+  and elsewhere the code uses .parser() / .signWith(...) combinations that don't match the usual io.jsonwebtoken (jjwt) 0.9.x or 0.11.x patterns. The recommended approach with jjwt 0.11.x is:
+    Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+  The current code may throw runtime exceptions or not parse tokens correctly depending on jjwt version. Recommend standardizing to parserBuilder()/parseClaimsJws.
+
+- Hard-coded JWT secret in code: JWTService.secret is a hard-coded Base64 string in source. Move secrets to configuration (application.yaml or environment variables) and avoid committing secrets.
+
+- Controller vs Filter authentication inconsistency: There's an AuthController with a commented login implementation and a JWTAuthenticationFilter that also handles /auth/login. Using a filter-based form login can be ok, but keep a single approach (either controller-based login or filter-based) and document it. Currently the commented controller might confuse contributors.
+
+- UserRepository queries may be incorrect:
+  - JPQL: @Query(value = "SELECT u FROM user u WHERE u.companyModel.id = :company_id") — JPQL should use entity name (e.g., "UserModel u" or the entity's @Entity(name=...)) and property paths (u.companyModel.id). Using lowercase 'user' could fail. If the entity is annotated @Table(name = "user"), JPQL still needs the entity name.
+  - Native queries reference columns like fk_company_id and assume table/column names; these must match DB schema and model mappings.
+  Validate repository queries and prefer derived query methods or correct JPQL.
+
+- In JWTAuthorizationFilter, header detection uses startsWith("Bearer") and substring(7). This works only if header is "Bearer <token>" (7 chars incl space). startsWith should check "Bearer " (with space) to be clearer. Also better to trim header and split by space.
+
+- BaseException extends Exception and uses Lombok @AllArgsConstructor/@NoArgsConstructor while also defining custom constructors; ensure stack traces and serialization are as expected for REST errors. Consider extending RuntimeException for unchecked behavior, or keep checked but ensure controllers propagate properly.
+
+- ApiResponse default status usage: ApiResponse has @JsonProperty defaultValue = "success" but ControllerExceptionHandler returns ApiResponse("failure", ...) in some code paths (ok). Ensure consistent response shape for errors (status + error object with code/description).
+
+- Password handling: I saw BCryptPasswordEncryptorImpl helpers, but ensure passwords are always hashed before save and not returned in DTOs. Also watch for using .toString() logs on user objects that might leak sensitive data.
+
+- CORS wide open: SecurityConfig allows all origins and credentials; tighten to specific origins in production.
+
+6) Recommendations / Next steps (prioritized)
+- Fix JWT parsing/signing code to use parserBuilder() / parseClaimsJws and extract Claims safely; centralize signing key via configuration and rotate secrets.
+- Unify login flow: either implement controller login (AuthController) or document filter-based login. If API clients expect JSON token in response, ensure authentication filter returns the same format.
+- Add refresh token & logout endpoints (invalidate bearer token store) and document session lifecycle.
+- Review repository queries and convert JPQL/native queries to use entity names & parameters that match model annotations; add unit tests for repository queries.
+- Move secrets to application.yaml with placeholders pulling from environment variables.
+- Frontend: confirm authService endpoints match backend expectations (cookie vs Authorization header). Implement automatic token attach and 401 handling with refresh or redirect to login.
+- Add integration tests for auth flows (login, token validation, auth-required endpoints).
+
+7) Files / Locations of interest (non-exhaustive)
+- SecurityConfig: src/main/java/com/promptdb/auth/config/SecurityConfig.java
+- JWT filters: src/main/java/com/promptdb/auth/filter/
+- JWTService: src/main/java/com/promptdb/auth/services/JWTService.java
+- UserServices: src/main/java/com/promptdb/auth/services/UserServices.java
+- ControllerExceptionHandler: src/main/java/com/promptdb/auth/exceptionHandlers/ControllerExceptionHandler.java
+- Repositories: src/main/java/com/promptdb/auth/repository/repoInterfaces/
+- Frontend app: src/frontend/auth-web/
+
+8) Quick manual checks already performed by me (not exhaustive):
+- Scanned controllers, services, filters, DTOs, exceptions and frontend files to produce this summary.
+- Did NOT run the project build; recommend running mvn -DskipTests=false test and npm/yarn install + npm run dev for frontend to verify runtime behavior.
+
+--- End of summary ---
+
+
